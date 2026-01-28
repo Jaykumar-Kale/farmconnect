@@ -6,33 +6,56 @@ import { t } from "../utils/useLang";
 export default function AdminDashboard() {
   const [vendors, setVendors] = useState([]);
 
+  const fetchVendors = async () => {
+    const res = await api.get("/admin/vendors");
+    setVendors(res.data);
+  };
+
   useEffect(() => {
-    api.get("/admin/vendors").then((res) => setVendors(res.data));
+    fetchVendors();
   }, []);
 
   const approveVendor = async (id) => {
     await api.put(`/admin/approve/${id}`);
-    setVendors(vendors.map(v => v._id === id ? { ...v, approved: true } : v));
+    fetchVendors();
+  };
+
+  const deleteVendor = async (id) => {
+    if (confirm("हा व्यापारी हटवायचा आहे का?")) {
+      await api.delete(`/admin/vendor/${id}`);
+      fetchVendors();
+    }
   };
 
   return (
     <>
       <Navbar titleKey="adminDashboard" />
       <div className="container">
-        <h2>{t("vendorApproval")}</h2>
+        <h2>{t("vendors")}</h2>
+
+        {vendors.length === 0 && (
+          <p className="empty">{t("noData")}</p>
+        )}
 
         {vendors.map((v) => (
           <div className="card" key={v._id}>
-            <p><strong>{t("name")}:</strong> {v.name}</p>
             <p>
-              <strong>{t("status")}:</strong>{" "}
-              {v.approved ? t("approved") : t("pending")}
+              <strong>{v.name}</strong> <br />
+              {v.email}
             </p>
+
             {!v.approved && (
               <button onClick={() => approveVendor(v._id)}>
-                {t("approve")}
+                ✅ {t("approve")}
               </button>
             )}
+
+            <button
+              style={{ backgroundColor: "#dc3545", marginTop: "6px" }}
+              onClick={() => deleteVendor(v._id)}
+            >
+              ❌ {t("deleteVendor")}
+            </button>
           </div>
         ))}
       </div>

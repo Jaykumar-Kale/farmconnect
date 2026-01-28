@@ -3,6 +3,10 @@ import api from "../api/axios";
 import Navbar from "../components/Navbar";
 import { t } from "../utils/useLang";
 
+import { GiWheat } from "react-icons/gi";
+import { FaRupeeSign, FaPlusCircle, FaEdit } from "react-icons/fa";
+import { MdLocationOn, MdDelete, MdClose } from "react-icons/md";
+
 export default function VendorDashboard() {
   const [form, setForm] = useState({
     cropName: "",
@@ -11,16 +15,15 @@ export default function VendorDashboard() {
     location: "",
   });
 
-  const [myCrops, setMyCrops] = useState([]);
+  const [crops, setCrops] = useState([]);
   const [message, setMessage] = useState("");
 
+  // edit modal state
+  const [editCrop, setEditCrop] = useState(null);
+
   const fetchMyCrops = async () => {
-    try {
-      const res = await api.get("/crops/my");
-      setMyCrops(res.data);
-    } catch (err) {
-      console.error(err);
-    }
+    const res = await api.get("/crops/my");
+    setCrops(res.data);
   };
 
   useEffect(() => {
@@ -31,23 +34,29 @@ export default function VendorDashboard() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const addCrop = async () => {
-    try {
-      await api.post("/crops/add", form);
+  const publishCrop = async () => {
+    await api.post("/crops/add", form);
+    setMessage("✔ " + t("publish"));
+    setForm({
+      cropName: "",
+      pricePerQuintal: "",
+      quantity: "",
+      location: "",
+    });
+    fetchMyCrops();
+  };
 
-      setMessage("✔ " + t("publish"));
-
-      setForm({
-        cropName: "",
-        pricePerQuintal: "",
-        quantity: "",
-        location: "",
-      });
-
+  const deleteCrop = async (id) => {
+    if (confirm("हा दर हटवायचा आहे का?")) {
+      await api.delete(`/crops/my/${id}`);
       fetchMyCrops();
-    } catch (err) {
-      alert("Error adding crop price");
     }
+  };
+
+  const updateCrop = async () => {
+    await api.put(`/crops/my/${editCrop._id}`, editCrop);
+    setEditCrop(null);
+    fetchMyCrops();
   };
 
   return (
@@ -56,17 +65,7 @@ export default function VendorDashboard() {
       <div className="container">
         <h2>{t("addCrop")}</h2>
 
-        {message && (
-          <p
-            style={{
-              color: "green",
-              fontWeight: "bold",
-              marginBottom: "10px",
-            }}
-          >
-            {message}
-          </p>
-        )}
+        {message && <p className="success">{message}</p>}
 
         <input
           name="cropName"
@@ -93,28 +92,83 @@ export default function VendorDashboard() {
           onChange={handleChange}
         />
 
-        <button onClick={addCrop}>{t("publish")}</button>
+        <button onClick={publishCrop}>
+          <FaPlusCircle /> {t("publish")}
+        </button>
 
         <hr style={{ margin: "25px 0" }} />
 
-        <h3>📋 माझे प्रकाशित दर</h3>
+        <h3>{t("myCrops")}</h3>
 
-        {myCrops.length === 0 && (
-          <p>अजून कोणतेही दर प्रकाशित केलेले नाहीत.</p>
+        {crops.length === 0 && (
+          <p className="empty">{t("noCrops")}</p>
         )}
 
-        {myCrops.map((c) => (
+        {crops.map((c) => (
           <div className="card" key={c._id}>
-            <p><strong>{t("crop")}:</strong> {c.cropName}</p>
-            <p><strong>{t("price")}:</strong> ₹{c.pricePerQuintal}</p>
+            <p><GiWheat /> <strong>{t("crop")}:</strong> {c.cropName}</p>
+            <p><FaRupeeSign /> <strong>{t("price")}:</strong> ₹{c.pricePerQuintal}</p>
             <p><strong>{t("quantity")}:</strong> {c.quantity}</p>
-            <p><strong>{t("location")}:</strong> {c.location}</p>
-            <p style={{ color: "green", fontWeight: "bold" }}>
-              स्थिती: प्रकाशित ✔
-            </p>
+            <p><MdLocationOn /> <strong>{t("location")}:</strong> {c.location}</p>
+
+            <div className="action-row">
+              <button onClick={() => setEditCrop(c)}>
+                <FaEdit /> Edit
+              </button>
+
+              <button
+                style={{ backgroundColor: "#dc3545" }}
+                onClick={() => deleteCrop(c._id)}
+              >
+                <MdDelete /> {t("delete")}
+              </button>
+            </div>
           </div>
         ))}
       </div>
+
+      {/* ===== EDIT MODAL ===== */}
+      {editCrop && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-header">
+              <h3>Edit Crop</h3>
+              <button onClick={() => setEditCrop(null)}>
+                <MdClose />
+              </button>
+            </div>
+
+            <input
+              value={editCrop.cropName}
+              onChange={(e) =>
+                setEditCrop({ ...editCrop, cropName: e.target.value })
+              }
+            />
+            <input
+              value={editCrop.pricePerQuintal}
+              onChange={(e) =>
+                setEditCrop({ ...editCrop, pricePerQuintal: e.target.value })
+              }
+            />
+            <input
+              value={editCrop.quantity}
+              onChange={(e) =>
+                setEditCrop({ ...editCrop, quantity: e.target.value })
+              }
+            />
+            <input
+              value={editCrop.location}
+              onChange={(e) =>
+                setEditCrop({ ...editCrop, location: e.target.value })
+              }
+            />
+
+            <button onClick={updateCrop}>
+              <FaEdit /> Update
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 }

@@ -1,23 +1,24 @@
 import { useNavigate } from "react-router-dom";
-import { t, setLang } from "../utils/useLang";
+import { MdLogout } from "react-icons/md";
+import { t, toggleLang } from "../utils/useLang";
 
 export default function Navbar({ titleKey }) {
   const navigate = useNavigate();
-  const name = localStorage.getItem("name");
 
   const logout = () => {
     localStorage.clear();
-    navigate("/login");
+    navigate("/");
   };
 
   return (
     <div className="navbar">
       <h1>{t(titleKey)}</h1>
 
-      <div className="lang-toggle">
-        <button onClick={() => setLang("en")}>EN</button>
-        <button onClick={() => setLang("mr")}>मराठी</button>
-        <button onClick={logout}>Logout</button>
+      <div className="nav-actions">
+        <button onClick={toggleLang}>🌐</button>
+        <button onClick={logout}>
+          <MdLogout /> Logout
+        </button>
       </div>
     </div>
   );
