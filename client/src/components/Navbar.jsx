@@ -1,46 +1,23 @@
 import { useNavigate } from "react-router-dom";
-import { getLang, setLang, t } from "../utils/useLang";
+import { t, setLang } from "../utils/useLang";
 
 export default function Navbar({ titleKey }) {
   const navigate = useNavigate();
-  const role = localStorage.getItem("role");
   const name = localStorage.getItem("name");
-  const currentLang = getLang();
 
-  const toggleLanguage = () => {
-    setLang(currentLang === "en" ? "mr" : "en");
-    window.location.reload();
-  };
-
-  const handleLogout = () => {
+  const logout = () => {
     localStorage.clear();
-    navigate("/");
+    navigate("/login");
   };
 
   return (
-    <div className="header" style={{ display: "flex", justifyContent: "space-between" }}>
-      <div>
-        <strong>{t(titleKey)}</strong>
-        {name && (
-          <div style={{ fontSize: "14px" }}>
-            {t("welcome")}, {name}
-          </div>
-        )}
-      </div>
+    <div className="navbar">
+      <h1>{t(titleKey)}</h1>
 
-      <div>
-        <button
-          onClick={toggleLanguage}
-          style={{ marginRight: "10px", padding: "6px 10px" }}
-        >
-          {currentLang === "en" ? "मराठी" : "English"}
-        </button>
-
-        {role && (
-          <button onClick={handleLogout} style={{ padding: "6px 10px" }}>
-            {t("logout")}
-          </button>
-        )}
+      <div className="lang-toggle">
+        <button onClick={() => setLang("en")}>EN</button>
+        <button onClick={() => setLang("mr")}>मराठी</button>
+        <button onClick={logout}>Logout</button>
       </div>
     </div>
   );
