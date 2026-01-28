@@ -12,19 +12,18 @@ connectDB();
 
 const app = express();
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 app.use(cors());
+app.use(express.json());
+
+app.get("/", (req, res) => {
+  res.send("FarmConnect API running 🚜");
+});
 
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/crops", cropRoutes);
 
-app.get("/", (req, res) => {
-  res.send("FarmConnect API is running 🚜");
-});
-
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+const PORT = 5000;
+app.listen(PORT, () =>
+  console.log(`Server running on http://localhost:${PORT}`)
+);

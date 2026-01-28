@@ -2,27 +2,11 @@ import mongoose from "mongoose";
 
 const cropPriceSchema = new mongoose.Schema(
   {
-    vendor: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-    cropName: {
-      type: String,
-      required: true,
-    },
-    pricePerQuintal: {
-      type: Number,
-      required: true,
-    },
-    quantity: {
-      type: Number,
-      required: true,
-    },
-    location: {
-      type: String,
-      required: true,
-    },
+    vendor: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    cropName: String,
+    pricePerQuintal: Number,
+    quantity: Number,
+    location: String,
   },
   { timestamps: true }
 );

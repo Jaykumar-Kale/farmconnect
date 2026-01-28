@@ -1,13 +1,13 @@
 import express from "express";
 import {
-  getVendors,
+  getAllVendors,
   approveVendor,
 } from "../controllers/adminController.js";
-import { protect, adminOnly } from "../middleware/authMiddleware.js";
+import { protect, isAdmin } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.get("/vendors", protect, adminOnly, getVendors);
-router.put("/approve/:vendorId", protect, adminOnly, approveVendor);
+router.get("/vendors", protect, isAdmin, getAllVendors);
+router.put("/approve/:id", protect, isAdmin, approveVendor);
 
 export default router;

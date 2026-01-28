@@ -2,32 +2,16 @@ import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
-      required: true,
-    },
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-    },
-    phone: {
-      type: String,
-      required: true,
-    },
-    password: {
-      type: String,
-      required: true,
-    },
+    name: String,
+    email: { type: String, unique: true },
+    phone: String,
+    password: String,
     role: {
       type: String,
       enum: ["farmer", "vendor", "admin"],
       default: "farmer",
     },
-    approved: {
-      type: Boolean,
-      default: false, // vendors need admin approval
-    },
+    approved: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
