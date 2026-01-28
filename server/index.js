@@ -2,29 +2,26 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./db.js";
-import User from "./models/User.js";
 
-dotenv.config();      // load .env variables
-connectDB();          // connect MongoDB
+import authRoutes from "./routes/authRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
+import cropRoutes from "./routes/cropRoutes.js";
+
+dotenv.config();
+connectDB();
 
 const app = express();
 
-app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cors());
+
+app.use("/api/auth", authRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/crops", cropRoutes);
 
 app.get("/", (req, res) => {
   res.send("FarmConnect API is running 🚜");
-});
-
-app.get("/create-test-user", async (req, res) => {
-  const user = await User.create({
-    name: "Test Farmer",
-    email: "test@farmconnect.com",
-    password: "123456",
-    role: "farmer",
-  });
-
-  res.json(user);
 });
 
 const PORT = process.env.PORT || 5000;
